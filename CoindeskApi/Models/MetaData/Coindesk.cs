@@ -5,11 +5,13 @@ namespace CoindeskApi.Models.MetaData;
 
 public partial class Coindesk
 {
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
 
     public string? CodeName { get; set; }
 
     public string? Description { get; set; }
+
+    public string? DescriptionAes { get; set; }
 
     public decimal? RateFloat { get; set; }
 

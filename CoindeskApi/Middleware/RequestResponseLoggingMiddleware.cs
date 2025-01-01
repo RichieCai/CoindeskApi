@@ -14,45 +14,80 @@ namespace CoindeskApi.Middleware
             _logger = logger;
         }
 
+
+
         public async Task InvokeAsync(HttpContext context)
         {
-            if (!context.Request.Path.StartsWithSegments("/api"))
+            // 替换 Response.Body 为 MemoryStream
+            var originalResponseBody = context.Response.Body;
+            using var responseBody = new MemoryStream();
+            context.Response.Body = responseBody;
+            try
             {
+                if (context.Request.Path.StartsWithSegments("/api"))
+                {
+                    await LogRequestAsync(context);
+                }
+                //await LogRequestAsync(context);
                 await _next(context);
-                return;
+                await LogResponseAsync(context);
             }
-            // 只處理 API 請求（排除靜態資源和 Swagger）
-            //if (context.Request.Path.StartsWithSegments("/swagger") ||
-            //    context.Request.Path.StartsWithSegments("/favicon.ico"))
-            //{
-            //    await _next(context);
-            //    return;
-            //}
+            finally
+            {
+                // 將響應資料寫回原始資料流  
+                await responseBody.CopyToAsync(originalResponseBody);
+                // 確保恢復原始流
+                context.Response.Body = originalResponseBody;
+            }
+        }
 
 
-            // 記錄請求
+
+        private async Task LogRequestAsync(HttpContext context)
+        {
+            context.Request.EnableBuffering(); // 允許重複讀取請求
+
             var request = context.Request;
-            request.EnableBuffering();
+            var requestBody = string.Empty;
 
-            var requestBody = await new StreamReader(request.Body).ReadToEndAsync();
-            request.Body.Position = 0;
+            if (request.ContentLength > 0 && request.Body.CanRead)
+            {
+                using var reader = new StreamReader(request.Body, leaveOpen: true);
+                requestBody = await reader.ReadToEndAsync();
+                request.Body.Position = 0; // 重置流位置
+            }
 
-            _logger.LogInformation($"[API Request] Method: {request.Method}, Path: {request.Path}, Body: {requestBody}");
+            var result = "Request:\n" +
+                                     $"Method: {request.Method}\n" +
+                                     $"Path: {request.Path}\n" +
+                                     $"Headers: {string.Join(", ", request.Headers.Select(h => $"{h.Key}: {h.Value}"))}\n" +
+                                     $"Body: {requestBody}";
+            _logger.LogInformation(result);
+            Console.WriteLine(result);
 
-            // 攔截回應
-            var originalResponseBodyStream = context.Response.Body;
-            using var responseBodyStream = new MemoryStream();
-            context.Response.Body = responseBodyStream;
+        }
 
-            await _next(context);
+        private async Task LogResponseAsync(HttpContext context)
+        {
+            // 確保 Response.Body 是 MemoryStream
+            if (context.Response.Body is MemoryStream responseBody)
+            {
+                // 讀取響應内容
+                responseBody.Seek(0, SeekOrigin.Begin);
+                var responseText = await new StreamReader(responseBody).ReadToEndAsync();
+                responseBody.Seek(0, SeekOrigin.Begin); // 重置流位置以便寫回
 
-            context.Response.Body.Seek(0, SeekOrigin.Begin);
-            var responseBody = await new StreamReader(context.Response.Body).ReadToEndAsync();
-            context.Response.Body.Seek(0, SeekOrigin.Begin);
-
-            _logger.LogInformation($"[API Response] StatusCode: {context.Response.StatusCode}, Body: {responseBody}");
-
-            await responseBodyStream.CopyToAsync(originalResponseBodyStream);
+                var result = "Response:\n" +
+                                       $"StatusCode: {context.Response.StatusCode}\n" +
+                                       $"Headers: {string.Join(", ", context.Response.Headers.Select(h => $"{h.Key}: {h.Value}"))}\n" +
+                                       $"Body: {responseText}";
+                _logger.LogInformation(result);
+                Console.WriteLine(result);
+            }
+            else
+            {
+                _logger.LogWarning("Unable to log response: Response.Body is not a MemoryStream.");
+            }
         }
     }
 }

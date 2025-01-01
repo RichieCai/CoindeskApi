@@ -1,6 +1,6 @@
 ﻿using CoindeskApi.Input;
 using CoindeskApi.Models.MetaData;
-using CoindeskApi.ViewModels;
+using CoindeskApi.Response;
 
 namespace CoindeskApi.Interface.Service
 {
@@ -9,12 +9,12 @@ namespace CoindeskApi.Interface.Service
         Task<Coindesk> GetAssign(string code);
 
         Task<List<Coindesk>> GetAll();
-        Task<ResultVM<Coindesk>> CallApi(string sUrl);
+        Task<ApiResponse<List<Coindesk>>> CallApi(string sUrl);
 
-        ResultVM<Coindesk> Add(ConindeskInput input);
+        ApiResponse<Coindesk> Add(ConindeskInput input);
 
-        ResultVM<Coindesk> Update(ConindeskInput input);
+        ApiResponse<Coindesk> Update(ConindeskInput input);
 
-        ResultVM<Coindesk> Delete(string Code);
+        ApiResponse<Coindesk> Delete(string Code);
     }
 }

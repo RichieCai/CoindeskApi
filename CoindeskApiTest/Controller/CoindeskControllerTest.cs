@@ -2,7 +2,7 @@
 using CoindeskApi.Input;
 using CoindeskApi.Interface.Service;
 using CoindeskApi.Models.MetaData;
-using CoindeskApi.ViewModels;
+using CoindeskApi.Response;
 using CoindeskApiTest.MockData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -18,13 +18,14 @@ namespace CoindeskApiTest.Controller
         public CoindeskControllerTest()
         {
             _mockService = new Mock<ICoindeskService>();
+            _mocklocalizer=new Mock<IStringLocalizer<CoindeskController>>();
             _controller = new CoindeskController(_mockService.Object, _mocklocalizer.Object);
         }
         [Fact]
         public async Task CallApi_ReturnOk()
         {
             string sUrl = "https://api.coindesk.com/v1/bpi/currentprice.json";
-            var expectedResult = new ResultVM<Coindesk>
+            var expectedResult = new ApiResponse<List<Coindesk>>
             {
                 Success = true,
                 Message = "資料已取得且新增成功",
@@ -76,7 +77,7 @@ namespace CoindeskApiTest.Controller
             // Arrange
             var expectedData = MockData_Coindesk.Add();
             var input = new ConindeskInput { code = "BTC", codename = "Bitcoin", ratefloat = 30000.5M };
-            var expectedResult = new ResultVM<Coindesk> { Success = true, Message = "新增成功" };
+            var expectedResult = new ApiResponse<Coindesk> { Success = true, Message = "新增成功" };
             _mockService.Setup(s => s.Add(input)).Returns(expectedResult);
 
             // Act
@@ -98,7 +99,7 @@ namespace CoindeskApiTest.Controller
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var actualResult = Assert.IsType<ResultVM<Coindesk>>(badRequestResult.Value);
+            var actualResult = Assert.IsType<ApiResponse<Coindesk>>(badRequestResult.Value);
             Assert.False(actualResult.Success);
             Assert.Equal("請輸入幣別", actualResult.Message);
         }
@@ -115,7 +116,7 @@ namespace CoindeskApiTest.Controller
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var actualResult = Assert.IsType<ResultVM<Coindesk>>(badRequestResult.Value);
+            var actualResult = Assert.IsType<ApiResponse<Coindesk>>(badRequestResult.Value);
             Assert.False(actualResult.Success);
             Assert.Equal("Validation failed", actualResult.Message);
             Assert.Contains("Codename is required", actualResult.Errors);
@@ -126,7 +127,7 @@ namespace CoindeskApiTest.Controller
         {
             // Arrange
             var input = new ConindeskInput { code = "BTC", codename = "Bitcoin", ratefloat = 30000.5M };
-            var expectedResult = new ResultVM<Coindesk> { Success = true, Message = "更新成功" };
+            var expectedResult = new ApiResponse<Coindesk> { Success = true, Message = "更新成功" };
             _mockService.Setup(s => s.Update(input)).Returns(expectedResult);
 
             // Act
@@ -142,7 +143,7 @@ namespace CoindeskApiTest.Controller
         {
             // Arrange
             string code = "BTC";
-            var expectedResult = new ResultVM<Coindesk> { Success = true, Message = "更新成功" };
+            var expectedResult = new ApiResponse<Coindesk> { Success = true, Message = "更新成功" };
             _mockService.Setup(s => s.Delete(code)).Returns(expectedResult);
 
             // Act

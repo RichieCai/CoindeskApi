@@ -120,7 +120,7 @@
   <data name="RequiredField" xml:space="preserve">
     <value>Field is Required</value>
   </data>
-  <data name="StringLengthExceede" xml:space="preserve">
+  <data name="StringLengthExceeded" xml:space="preserve">
     <value>Max String Length {1} characters</value>
   </data>
 </root>

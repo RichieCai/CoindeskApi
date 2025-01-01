@@ -5,6 +5,7 @@ using CoindeskApi.Models.MetaData;
 using CoindeskApi.Service;
 using CoindeskApiTest.MockData;
 using Moq;
+using MyCommon.Encryption;
 using MyCommon.Interface;
 
 namespace CoindeskApiTest.Service
@@ -15,12 +16,14 @@ namespace CoindeskApiTest.Service
         private readonly Mock<ICoindeskTWRepositroy> _twMockRepository;
         private readonly Mock<IMsDBConn> _msDBConnMock;
         private readonly ICoindeskService _service;
+        private readonly Mock<AesEncryptionService> _encryptionService;
         public CoindeskServiceTest()
         {
             _mockRepository = new Mock<ICoindeskRepository>();
             _twMockRepository = new Mock<ICoindeskTWRepositroy>();
             _msDBConnMock = new Mock<IMsDBConn>();
-            _service = new CoindeskService(_msDBConnMock.Object, _mockRepository.Object, _twMockRepository.Object);
+            _encryptionService = new Mock<AesEncryptionService>();
+            _service = new CoindeskService(_msDBConnMock.Object, _mockRepository.Object, _twMockRepository.Object, _encryptionService.Object);
         }
         [Fact]
         public async Task CallApi_Returns_ResultVM_WithSuccess()

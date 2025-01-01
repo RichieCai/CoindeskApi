@@ -20,9 +20,9 @@ public partial class dbCoindeskContext : DbContext
     {
         modelBuilder.Entity<Coindesk>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("Coindesk");
+            entity.HasKey(e => e.Code);
+
+            entity.ToTable("Coindesk");
 
             entity.Property(e => e.Code)
                 .HasMaxLength(10)
@@ -31,9 +31,10 @@ public partial class dbCoindeskContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.Description).HasMaxLength(200);
-            entity.Property(e => e.RateFloat).HasColumnType("decimal(9, 4)");
+            entity.Property(e => e.DescriptionAes).HasMaxLength(500);
+            entity.Property(e => e.RateFloat).HasColumnType("decimal(11, 4)");
             entity.Property(e => e.Symbol)
-                .HasMaxLength(2)
+                .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.UpdateTime).HasPrecision(0);
         });
