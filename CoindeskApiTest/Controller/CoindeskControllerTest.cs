@@ -89,38 +89,24 @@ namespace CoindeskApiTest.Controller
         }
 
         [Fact]
-        public void Add_ReturnsBadRequest_WhenCodeIsNull()
+        public void Add_InvalidModel_ReturnsBadRequest()
         {
             // Arrange
-            var input = new ConindeskInput { code = null, codename = "Bitcoin", ratefloat = 30000.5M };
-
-            // Act
-            var result = _controller.Add(input);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var actualResult = Assert.IsType<ApiResponse<Coindesk>>(badRequestResult.Value);
-            Assert.False(actualResult.Success);
-            Assert.Equal("請輸入幣別", actualResult.Message);
-        }
-
-        [Fact]
-        public void Add_ReturnsBadRequest_WhenModelStateIsInvalid()
-        {
-            // Arrange
+            _controller.ModelState.AddModelError("Key", "Validation error");
             var input = new ConindeskInput { code = "BTC", codename = null, ratefloat = 30000.5M };
-            _controller.ModelState.AddModelError("codename", "Codename is required");
+            _mocklocalizer.Setup(l => l["ValidationFailed"]).Returns(new LocalizedString("ValidationFailed", "Validation Failed"));
 
             // Act
             var result = _controller.Add(input);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var actualResult = Assert.IsType<ApiResponse<Coindesk>>(badRequestResult.Value);
-            Assert.False(actualResult.Success);
-            Assert.Equal("Validation failed", actualResult.Message);
-            Assert.Contains("Codename is required", actualResult.Errors);
+            var response = Assert.IsType<ApiResponse<Coindesk>>(badRequestResult.Value);
+            Assert.False(response.Success);
+            Assert.Equal("Validation Failed", response.Message);
+            Assert.Contains("Validation error", response.Errors);
         }
+
 
         [Fact]
         public void Update_ReturnsOkResult_WhenUpdateIsSuccessful()

@@ -1,3 +1,4 @@
+using CoindeskApi.Encryption;
 using CoindeskApi.Interface.Repository;
 using CoindeskApi.Interface.Service;
 using CoindeskApi.Middleware;
@@ -33,10 +34,19 @@ builder.Services.AddTransient<ICoindeskService, CoindeskService>();
 builder.Services.AddTransient<ICoindeskRepository, CoindeskRepository>();
 builder.Services.AddTransient<ICoindeskTWRepositroy, CoindeskTWRepositroy>();
 
-builder.Services.Configure<EncryptionSettings>(builder.Configuration.GetSection("EncryptionSettings"));//因範例 暫時寫在setting
-builder.Services.AddScoped<IMsDBConn>(provider => new MsDBConn(builder.Configuration.GetConnectionString("dbConnection")));
 
-builder.Services.AddSingleton<AesEncryptionService>();
+builder.Services.Configure<EncryptionSettings>(builder.Configuration.GetSection("EncryptionSettings"));//因範例 暫時寫在setting
+if (builder.Configuration.GetValue<int>("EnvWork") == 1)
+{
+    builder.Services.AddScoped<IMsDBConn>(provider => new MsDBConn(builder.Configuration.GetConnectionString("dbConnection")));
+}
+else
+{
+    builder.Services.AddScoped<IMsDBConn>(provider => new MsDBConn(builder.Configuration.GetConnectionString("dbConnectionDocker")));
+}
+
+builder.Services.AddSingleton<IAesEncryptionService, AesEncryptionService>();
+
 
 // 加載 log4net 配置
 builder.Logging.ClearProviders();

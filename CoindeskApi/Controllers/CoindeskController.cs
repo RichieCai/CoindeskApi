@@ -27,6 +27,12 @@ namespace CoindeskApi.Controllers
             throw new InvalidOperationException("This is a test exception.");
         }
 
+        [HttpGet("Regin")]
+        public IActionResult Regin()
+        {
+            return Ok(_localizer["PleaseCurrenyType"]);
+        }
+
         [HttpGet("fetch")]
         public async Task<IActionResult> CallApi()
         {

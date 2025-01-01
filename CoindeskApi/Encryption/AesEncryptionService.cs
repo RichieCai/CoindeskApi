@@ -1,11 +1,12 @@
-﻿using CoindeskApi.Models.Data;
+﻿using CoindeskApi.Encryption;
+using CoindeskApi.Models.Data;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace MyCommon.Encryption
 {
-    public class AesEncryptionService
+    public class AesEncryptionService: IAesEncryptionService
     {
         private readonly byte[] _key;
         private readonly byte[] _iv;

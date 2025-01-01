@@ -1,4 +1,5 @@
-﻿using CoindeskApi.Input;
+﻿using CoindeskApi.Encryption;
+using CoindeskApi.Input;
 using CoindeskApi.Interface.Repository;
 using CoindeskApi.Interface.Service;
 using CoindeskApi.Models.MetaData;
@@ -14,8 +15,8 @@ namespace CoindeskApi.Service
         private readonly ICoindeskRepository _icoindeskRepository;
         private readonly ICoindeskTWRepositroy _icoindeskRepositoryTW;
         private readonly IMsDBConn _msDBConn;
-        private readonly AesEncryptionService _encryptionService;
-        public CoindeskService(IMsDBConn msDBConn, ICoindeskRepository icoindeskRepository, ICoindeskTWRepositroy icoindeskRepositoryTW, AesEncryptionService encryptionService)
+        private readonly IAesEncryptionService _encryptionService;
+        public CoindeskService(IMsDBConn msDBConn, ICoindeskRepository icoindeskRepository, ICoindeskTWRepositroy icoindeskRepositoryTW, IAesEncryptionService encryptionService)
         {
             _icoindeskRepository = icoindeskRepository;
             _icoindeskRepositoryTW = icoindeskRepositoryTW;
@@ -68,6 +69,7 @@ namespace CoindeskApi.Service
                 Code = b.Name.ToUpper(),
                 CodeName = Cheinese.Where(x => x.Code == b.Value.GetProperty("code").GetString()).Select(x => x.CodeName).FirstOrDefault(),
                 Description = b.Value.GetProperty("description").GetString(),
+                DescriptionAes = _encryptionService.Encrypt(b.Value.GetProperty("description").GetString()),
                 RateFloat = b.Value.GetProperty("rate_float").GetDecimal(),
                 Symbol = b.Value.GetProperty("symbol").GetString(),
                 UpdateTime = DateTime.Now
