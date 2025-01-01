@@ -12,10 +12,10 @@ namespace CoindeskApi.Input
     public class ConindeskInput
     {
         [Display(Name = "代碼")]
-        [Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = "RequiredField")]
-        [StringLength(10, ErrorMessageResourceType =  typeof(SharedResource), ErrorMessageResourceName = "StringLengthExceeded")]
-        //[Required(ErrorMessage = "該欄位為必填")]
-        //[StringLength(10, ErrorMessage = "code最多輸入10個字")]
+        //[Required(ErrorMessageResourceType = typeof(SharedResource), ErrorMessageResourceName = "RequiredField")]
+        //[StringLength(10, ErrorMessageResourceType =  typeof(SharedResource), ErrorMessageResourceName = "StringLengthExceeded")]
+        [Required(ErrorMessage = "該欄位為必填")]
+        [StringLength(10, ErrorMessage = "code最多輸入10個字")]
         public string code { get; set; }
 
         [Display(Name = "中文名稱")]

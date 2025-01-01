@@ -18,6 +18,11 @@ var builder = WebApplication.CreateBuilder(args);
 // 添加多國語系服務
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
+// 添加控制器支持並啟用 DataAnnotations 的多國語系驗證
+builder.Services.AddControllers()
+    .AddDataAnnotationsLocalization();
+
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
